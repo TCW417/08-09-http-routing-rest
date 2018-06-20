@@ -1,13 +1,13 @@
 const url = require('url');
-const queryString = require('querystring');
+// const queryString = require('querystring');
 
 
 module.exports = (request) => {
   return new Promise((resolve, reject) => {
     if (!request || !request.url) return reject(new Error('Invalid Request Object. Cannot parse.'));
 
-    request.url = url.parse(request.url);
-    request.url.query = queryString.parse(request.url.query);
+    request.url = url.parse(request.url, true);
+    // request.url.query = queryString.parse(request.url.query);
 
     if (!request.method.match(/POST|PUT|PATCH/)) {
       return resolve(request);

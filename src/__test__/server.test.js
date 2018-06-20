@@ -1,26 +1,27 @@
 'use strict';
 
+/* eslint-disable */
 const superagent = require('superagent');
 const server = require('../lib/server');
-const Note = require('../model/note');
+const Book = require('../model/books');
 
-const apiUrl = 'http://localhost:5000/api/v1/note';
+const apiUrl = 'http://localhost:5000/api/v1/books';
 
 const mockResource = {
   title: 'test title',
-  content: 'test content',
+  author: 'test author',
 };
 
 beforeAll(() => server.start(5000));
 afterAll(() => server.stop());
 
-describe('POST to /api/v1/note', () => {
-  test('200 for successful saving of a new note', () => {
+describe('POST to /api/v1/books', () => {
+  test('200 for successful saving of a new book', () => {
     return superagent.post(apiUrl)
       .send(mockResource)
       .then((response) => {
         expect(response.body.title).toEqual(mockResource.title);
-        expect(response.body.content).toEqual(mockResource.content);
+        expect(response.body.author).toEqual(mockResource.author);
         expect(response.body._id).toBeTruthy();
         expect(response.status).toEqual(200);
       })
@@ -43,13 +44,13 @@ describe('POST to /api/v1/note', () => {
   });
 });
 
-describe('GET /api/v1/note', () => {
+describe('GET /api/v1/books', () => {
   let mockResourceForGet;
   beforeEach(() => {
-    const newNote = new Note(mockResource);
-    newNote.save()
-      .then((note) => {
-        mockResourceForGet = note;
+    const newBook = new Book(mockResource);
+    newBook.save()
+      .then((book) => {
+        mockResourceForGet = book;
       })
       .catch((err) => {
         throw err;
@@ -61,8 +62,8 @@ describe('GET /api/v1/note', () => {
       .then((response) => {
         expect(response.status).toEqual(200);
         expect(response.body.title).toEqual(mockResourceForGet.title);
-        expect(response.body.content).toEqual(mockResourceForGet.content);
-        expect(response.body.createdOn).toEqual(mockResourceForGet.createdOn.toISOString());
+        expect(response.body.author).toEqual(mockResourceForGet.author);
+        expect(response.body.createdOn).toEqual(mockResourceForGet.createdOn);
       })
       .catch((err) => {
         throw err;
