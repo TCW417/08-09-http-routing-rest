@@ -27,6 +27,24 @@ module.exports = (router) => {
     return undefined;
   });
 
+  router.put('/api/v1/books/update', (request, response) => {
+    logger.log(logger.INFO, 'ROUTE-BOOKS: PUT /api/v1/books/update');
+    const validBook = book => book._id && book.title && book.author;
+    if (validBook(request.body)) {
+      Book.update(request.body)
+        .then((result) => {
+          logger.log(logger.INFO, `ROUTE-BOOKS PUT: book ${result._id} updated`);
+          customResponse.sendJSON(response, 200, result);
+          return undefined;
+        }).catch((err) => {
+          logger.log(logger.ERROR, `ROUTE-BOOKS PUT: ${err.message}`);
+          customResponse.sendJSON(response, 404, err.message);
+          return undefined;
+        });
+    }
+    return undefined;
+  });
+
   router.get('/api/v1/books', (request, response) => {
     if (request.url.query.id) {
       Book.findById(request.url.query.id)
