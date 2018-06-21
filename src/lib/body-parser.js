@@ -8,7 +8,6 @@ module.exports = (request) => {
 
     request.url = url.parse(request.url, true);
     // request.url.query = queryString.parse(request.url.query);
-
     if (!request.method.match(/POST|PUT|PATCH/)) {
       return resolve(request);
     }

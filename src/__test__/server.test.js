@@ -70,3 +70,44 @@ describe('GET /api/v1/books', () => {
       });
   });
 });
+
+describe('DELETE /api/v1/books', () => {
+  let mockResourceForGet;
+  beforeAll(() => {
+    const newBook = new Book(mockResource);
+    newBook.save()
+      .then((book) => {
+        mockResourceForGet = book;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+
+  test('200 successful DELETE request', () => {
+    return superagent.delete(`${apiUrl}?id=${mockResourceForGet._id}`)
+      .then((response) => {
+        expect(response.status).toEqual(200);
+        // expect(response.body.title).toEqual(mockResourceForGet.title);
+        // expect(response.body.author).toEqual(mockResourceForGet.author);
+        // expect(response.body.createdOn).toEqual(mockResourceForGet.createdOn);
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+
+    test('404 Failed DELETE request', () => {
+      return superagent.delete(`${apiUrl}?id=${mockResourceForGet._id}`)
+        .then((err) => {
+          throw err;
+        })
+        .catch((response) => {
+          expect(response.status).toEqual(404);
+          expect(response.body).toBeUndefined();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+});

@@ -29,18 +29,32 @@ module.exports = (router) => {
 
   // /api/v1/books?id=12335
   router.get('/api/v1/books', (request, response) => {
-    console.log('GET query:', request.url.query);
     if (!request.url.query.id) {
       customResponse.sendError(response, 404, 'Your request requires an id');
       return undefined;
     }
-
-    Book.findOneByID(request.url.query.id)
+    Book.findById(request.url.query.id)
       .then((book) => {
         customResponse.sendJSON(response, 200, book);
       })
       .catch((err) => {
-        console.log(err);
+        customResponse.sendError(response, 404, err.message);
+      });
+    return undefined;
+  });
+
+  router.delete('/api/v1/books', (request, response) => {
+    if (!request.url.query.id) {
+      customResponse.sendError(response, 404, 'Your request requires an id');
+      return undefined;
+    }
+    Book.delete(request.url.query.id)
+      .then((book) => {
+        customResponse.sendJSON(response, 200, {
+          Result: `${book.title} has been deleted`,
+        });
+      })
+      .catch((err) => {
         customResponse.sendError(response, 404, err.message);
       });
     return undefined;

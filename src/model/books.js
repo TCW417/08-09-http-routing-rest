@@ -29,24 +29,24 @@ module.exports = class Book {
     return storage.getAll('Books');
   }
 
-  static findOneByID(_id) {
+  static findById(_id) {
     return storage.get('Books', _id);
   }
 
-  static findOneByAuthor(author) {
+  static findByAuthor(author) {
     return storage.getByKey('Books', { author });
   }
 
-  static findOneByTitle(title) {
+  static findByTitle(title) {
     return storage.getByKey('Books', { title });
   }
 
-  static updateOne(data) {
+  static update(data) {
     // TODO: Bonus to write code here teo update a user in the storage module by targeting their ID
     return storage.update('Books', data);
   }
 
-  static deleteOne(_id) {
+  static delete(_id) {
     // TODO: write code here to delete a user in the storage module by targeting their id
     return storage.delete('Books', _id);
   }
