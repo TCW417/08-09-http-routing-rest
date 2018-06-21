@@ -4,6 +4,7 @@
 const superagent = require('superagent');
 const server = require('../lib/server');
 const Book = require('../model/books');
+const memory = require('../lib/storage')._mem;
 
 const apiUrl = 'http://localhost:5000/api/v1/books';
 
@@ -88,9 +89,6 @@ describe('DELETE /api/v1/books', () => {
     return superagent.delete(`${apiUrl}?id=${mockResourceForGet._id}`)
       .then((response) => {
         expect(response.status).toEqual(200);
-        // expect(response.body.title).toEqual(mockResourceForGet.title);
-        // expect(response.body.author).toEqual(mockResourceForGet.author);
-        // expect(response.body.createdOn).toEqual(mockResourceForGet.createdOn);
       })
       .catch((err) => {
         throw err;
@@ -111,3 +109,80 @@ describe('DELETE /api/v1/books', () => {
         });
     });
 });
+
+describe('GET /api/v1/books with no query string', () => {
+  beforeAll(() => {
+    new Book({
+      author: 'author 1',
+      title: 'title 1',
+      summary: 'a summary,'
+    }).save();
+    new Book({
+      author: 'author 1',
+      title: 'title 2',
+    }).save();
+    new Book({
+      author: 'author 1',
+      title: 'title 3',
+      summary: 'a summary,'
+    }).save();
+  });
+
+  test('200 successful GET request with no query string', () => {
+    return superagent.get(`${apiUrl}`)
+      .then((response) => {
+        // console.log(response.body);
+        expect(response.status).toEqual(200);
+        expect(response.body).toHaveLength(5);
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+});
+
+describe('GET requests quering author and title', () => {
+  beforeAll(() => {
+    new Book({
+      author: 'author 1',
+      title: 'title 1',
+      summary: 'a summary,'
+    }).save();
+    new Book({
+      author: 'author 2',
+      title: 'title 2',
+    }).save();
+    new Book({
+      author: 'author 1',
+      title: 'title 3',
+      summary: 'a summary,'
+    }).save();
+  });
+
+  test('GET all author 1 books', () => {
+    // console.log(JSON.stringify(memory, null, 2));
+    return superagent.get(`${apiUrl}`)
+      .query({
+        author: 'author 1',
+      })
+      .then((response) => {
+        // console.log()
+        expect(response.status).toEqual(200);
+        expect(response.body).toHaveLength(5);
+      })
+      .catch((err) => {
+        throw err;
+      });
+    });
+
+    test('GET all author X (unfound)', () => {
+      return superagent.get(`${apiUrl}`)
+        .query({
+          author: 'not found',
+        })
+        .then((result) => {
+          expect(result.body).toHaveLength(0);
+        });
+    });
+});
+

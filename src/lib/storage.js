@@ -5,6 +5,7 @@ const logger = require('./logger');
 const storage = module.exports = {};
 
 const memory = storage._mem = {};
+
 // this module implements an object-agnostic library for
 // storing arbitrary items in multiple schemas. 
 // 
@@ -48,8 +49,6 @@ storage.save = (schema, item) => {
 
     memory[schema][item._id] = item;
 
-    logger.log(logger.INFO, `STORAGE.save: Created a new resource ${JSON.stringify(memory[schema][item._id], null, 2)}`);
-
     return resolve(item);
   });
 };
@@ -75,23 +74,25 @@ storage.getAll = (schema) => {
 };
 
 storage.getByKey = (schema, searchFor) => {
+  // console.log('>>>>>>>>>>>>>> getByKey searchFor obj', searchFor);
   if (memory[schema]) {
     const searchKey = Object.keys(searchFor)[0];
     const searchVal = searchFor[searchKey];
     const searchSchema = memory[schema];
-
+    // console.log('>>>>>>>>>>>>> key, val', searchKey, searchVal);
     // get array of all schema item keys
     const schemaKeyVals = Object.keys(searchSchema);
-
+    // console.log('>>>>>>>>>>schemaKeyVal array', schemaKeyVals);
     // create match array with schema items matching
     // the searchFor object's key: value
     const match = [];
     schemaKeyVals.forEach((key) => {
       if (searchSchema[key][searchKey] === searchVal) {
+        // console.log('...... forEach pusing', searchSchema[key]);
         match.push(searchSchema[key]);
       }
     });
-
+    // console.log('.........getByKey.......returning', match);
     return Promise.resolve(match);
   }
   return Promise.reject(new Error(`Schema ${schema} not found`));

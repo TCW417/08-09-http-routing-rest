@@ -29,17 +29,50 @@ module.exports = (router) => {
 
   // /api/v1/books?id=12335
   router.get('/api/v1/books', (request, response) => {
-    if (!request.url.query.id) {
-      customResponse.sendError(response, 404, 'Your request requires an id');
+    // console.log('++++++++ request.url', request.url);
+    if (request.url.query.id) {
+      Book.findById(request.url.query.id)
+        .then((book) => {
+          customResponse.sendJSON(response, 200, book);
+        })
+        .catch((err) => {
+          customResponse.sendError(response, 404, err.message);
+        });
       return undefined;
     }
-    Book.findById(request.url.query.id)
-      .then((book) => {
-        customResponse.sendJSON(response, 200, book);
-      })
-      .catch((err) => {
-        customResponse.sendError(response, 404, err.message);
-      });
+    if (request.url.query.author) {
+      console.log('searching for author', request.url.query.author);
+      Book.findByAuthor(request.url.query.author)
+        .then((books) => {
+          customResponse.sendJSON(response, 200, books);
+        })
+        .catch((err) => {
+          customResponse.sendError(response, 404, err.message);
+        });
+      return undefined;
+    } 
+    if (request.url.query.title) {
+      // console.log('searching for title', request.url.query.title);
+      Book.findByTitle(request.url.query.title)
+        .then((books) => {
+          customResponse.sendJSON(response, 200, books);
+        })
+        .catch((err) => {
+          customResponse.sendError(response, 404, err.message);
+        });
+      return undefined;
+    } 
+    // console.log('request.url in get route', request.url);
+    if (!request.url.query.id) {
+      Book.fetchAll()
+        .then((results) => {
+          customResponse.sendJSON(response, 200, results);
+        })
+        .catch((err) => {
+          throw err;
+        });
+      return undefined;
+    }
     return undefined;
   });
 
