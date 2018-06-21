@@ -27,9 +27,7 @@ module.exports = (router) => {
     return undefined;
   });
 
-  // /api/v1/books?id=12335
   router.get('/api/v1/books', (request, response) => {
-    // console.log('++++++++ request.url', request.url);
     if (request.url.query.id) {
       Book.findById(request.url.query.id)
         .then((book) => {
@@ -41,7 +39,6 @@ module.exports = (router) => {
       return undefined;
     }
     if (request.url.query.author) {
-      console.log('searching for author', request.url.query.author);
       Book.findByAuthor(request.url.query.author)
         .then((books) => {
           customResponse.sendJSON(response, 200, books);
@@ -52,7 +49,6 @@ module.exports = (router) => {
       return undefined;
     } 
     if (request.url.query.title) {
-      // console.log('searching for title', request.url.query.title);
       Book.findByTitle(request.url.query.title)
         .then((books) => {
           customResponse.sendJSON(response, 200, books);
@@ -62,7 +58,6 @@ module.exports = (router) => {
         });
       return undefined;
     } 
-    // console.log('request.url in get route', request.url);
     if (!request.url.query.id) {
       Book.fetchAll()
         .then((results) => {
