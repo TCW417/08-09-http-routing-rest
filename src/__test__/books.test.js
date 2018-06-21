@@ -28,22 +28,33 @@ describe('books module tests', () => {
     expect(b.createdOn).toBeTruthy();
     expect(b._id).toBeTruthy();
   });
-  test('save three books', () => {
+
+  test('save three books', (done) => {
     new Book({
       title: 'title 1',
       author: 'author 1',
-    }).save();
-    new Book({
-      title: 'title 2',
-      author: 'author 1',
-      description: 'the description of title 2',
-    }).save();
-    new Book({
-      title: 'title 3',
-      author: 'author 3',
-      description: 'the description of title 3',
-    }).save();
-    expect(Object.keys(storage._mem.Books)).toHaveLength(3);
+    }).save()
+      .then(() => {
+        new Book({
+          title: 'title 2',
+          author: 'author 1',
+          description: 'the description of title 2',
+        }).save();
+      })
+      .then(() => {
+        new Book({
+          title: 'title 3',
+          author: 'author 3',
+          description: 'the description of title 3',
+        }).save();
+      })
+      .then(() => {
+        expect(Object.keys(storage._mem.Books)).toHaveLength(3);
+        done();
+      })
+      .catch((err) => {
+        throw err;
+      });
   });
 
   test('#fetch all the books', () => {
@@ -62,15 +73,20 @@ describe('books module tests', () => {
     const b = new Book({
       author: 'author 3',
       title: 'title 4',
-    }).save();
-    Book.findById(b._id)
-      .then((book) => {
-        expect(book.title).toEqual('title 4');
-        expect(book.author).toEqual('author 3');
-      })
-      .catch((err) => {
+    });
+    b.save()
+      .then(() => {
+        Book.findById(b._id)
+          .then((book) => {
+            expect(book.title).toEqual('title 4');
+            expect(book.author).toEqual('author 3');
+          })
+          .catch((err) => {
+            throw err;
+          });
+      }).catch((err) => {
         throw err;
-      });
+      }); 
   });
 
   test('#fetchByAuthor', () => {
@@ -96,25 +112,29 @@ describe('books module tests', () => {
   });
 
   let b;
-  test('#update', () => {
+  test('#update', (done) => {
     b = new Book({
       author: 'author 2',
       title: 'title 5',
     });
-    Book.update({
-      _id: b._id,
-      description: 'added description',
-      title: 'title 5b',
-    });
-    Book.findById(b._id)
-      .then((book) => {
-        expect(book.description).toEqual('added description');
-        expect(book.title).toEqual('title 5b');
+    b.save()
+      .then(() => {
+        b.description = 'added description';
+        b.title = 'title 5b';
+        Book.update(b)
+          .then((result) => {
+            expect(result.title).toEqual('title 5b');
+            expect(result.description).toEqual('added description');
+            done();
+          }).catch((err) => {
+            throw err;
+          });
       })
       .catch((err) => {
         throw err;
       });
   });
+
 
   test('#delete', () => {
     Book.delete(b._id)
