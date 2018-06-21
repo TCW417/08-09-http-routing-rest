@@ -198,7 +198,7 @@ describe('PUT (update) tests', () => {
         cachedBooks = books.slice();
         const book = books[0];
         book.title = 'A New Title';
-        superagent.put(`${apiUrl}/update`)
+        superagent.put(`${apiUrl}`)
           .send(JSON.stringify(book))
           .then((result) => {
             updateTest(result);

@@ -27,7 +27,7 @@ module.exports = (router) => {
     return undefined;
   });
 
-  router.put('/api/v1/books/update', (request, response) => {
+  router.put('/api/v1/books', (request, response) => {
     logger.log(logger.INFO, 'ROUTE-BOOKS: PUT /api/v1/books/update');
     const validBook = book => book._id && book.title && book.author;
     if (validBook(request.body)) {
