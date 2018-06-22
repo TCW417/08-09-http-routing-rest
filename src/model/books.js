@@ -8,7 +8,7 @@ module.exports = class Book {
   // { 
   //    title: "book title",
   //    author: "author",
-  //    summary: "summary of the book"
+  //    description: "description of the book"
   // }
   // title and author are required. Summary is optional.
   // each new book is given a unique id (uuid) to use as 
@@ -18,7 +18,7 @@ module.exports = class Book {
     this.createdOn = new Date().toISOString();
     this.title = bookInfo.title;
     this.author = bookInfo.author;
-    this.summary = bookInfo.content || '';
+    this.description = bookInfo.description || '';
   }
 
   save() {

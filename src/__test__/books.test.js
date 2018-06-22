@@ -4,18 +4,30 @@ const Book = require('../model/books');
 const storage = require('../lib/storage');
 
 describe('books module tests', () => {
-  test('constructor', () => {
+  test('constructor no description', () => {
     const b = new Book({
       title: 'title 1',
       author: 'author 1',
     });
     expect(b.title).toEqual('title 1');
     expect(b.author).toEqual('author 1');
-    expect(b.summary).toEqual('');
+    expect(b.description).toEqual('');
     expect(b.createdOn).toBeTruthy();
     expect(b._id).toBeTruthy();
   });
 
+  test('constructor with description', () => {
+    const b = new Book({
+      title: 'title 1',
+      author: 'author 1',
+      description: 'the description',
+    });
+    expect(b.title).toEqual('title 1');
+    expect(b.author).toEqual('author 1');
+    expect(b.description).toEqual('the description');
+    expect(b.createdOn).toBeTruthy();
+    expect(b._id).toBeTruthy();
+  });
   test('save three books', () => {
     new Book({
       title: 'title 1',
@@ -24,12 +36,12 @@ describe('books module tests', () => {
     new Book({
       title: 'title 2',
       author: 'author 1',
-      summary: 'the summary of title 2',
+      description: 'the description of title 2',
     }).save();
     new Book({
       title: 'title 3',
       author: 'author 3',
-      summary: 'the summary of title 3',
+      description: 'the description of title 3',
     }).save();
     expect(Object.keys(storage._mem.Books)).toHaveLength(3);
   });
@@ -91,12 +103,12 @@ describe('books module tests', () => {
     });
     Book.update({
       _id: b._id,
-      summary: 'added summary',
+      description: 'added description',
       title: 'title 5b',
     });
     Book.findById(b._id)
       .then((book) => {
-        expect(book.summary).toEqual('added summary');
+        expect(book.description).toEqual('added description');
         expect(book.title).toEqual('title 5b');
       })
       .catch((err) => {

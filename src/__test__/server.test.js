@@ -11,6 +11,7 @@ const apiUrl = 'http://localhost:5000/api/v1/books';
 const mockResource = {
   title: 'test title',
   author: 'test author',
+  description: 'the description',
 };
 
 beforeAll(() => server.start(5000));
@@ -23,6 +24,7 @@ describe('POST to /api/v1/books', () => {
       .then((response) => {
         expect(response.body.title).toEqual(mockResource.title);
         expect(response.body.author).toEqual(mockResource.author);
+        expect(response.body.description).toEqual(mockResource.description);
         expect(response.body._id).toBeTruthy();
         expect(response.status).toEqual(200);
       })
@@ -115,7 +117,7 @@ describe('GET /api/v1/books with no query string', () => {
     new Book({
       author: 'author 1',
       title: 'title 1',
-      summary: 'a summary,'
+      description: 'a description,'
     }).save();
     new Book({
       author: 'author 1',
@@ -124,14 +126,13 @@ describe('GET /api/v1/books with no query string', () => {
     new Book({
       author: 'author 1',
       title: 'title 3',
-      summary: 'a summary,'
+      description: 'a description,'
     }).save();
   });
 
   test('200 successful GET request with no query string', () => {
     return superagent.get(`${apiUrl}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response.status).toEqual(200);
         expect(response.body).toHaveLength(5);
       })
@@ -146,7 +147,7 @@ describe('GET requests quering author and title', () => {
     new Book({
       author: 'author 1',
       title: 'title 1',
-      summary: 'a summary,'
+      description: 'a description,'
     }).save();
     new Book({
       author: 'author 2',
@@ -155,18 +156,16 @@ describe('GET requests quering author and title', () => {
     new Book({
       author: 'author 1',
       title: 'title 3',
-      summary: 'a summary,'
+      description: 'a description,'
     }).save();
   });
 
   test('GET all author 1 books', () => {
-    // console.log(JSON.stringify(memory, null, 2));
     return superagent.get(`${apiUrl}`)
       .query({
         author: 'author 1',
       })
       .then((response) => {
-        // console.log()
         expect(response.status).toEqual(200);
         expect(response.body).toHaveLength(5);
       })
@@ -186,3 +185,44 @@ describe('GET requests quering author and title', () => {
     });
 });
 
+describe('PUT (update) tests', () => {
+  let cachedBooks;
+  test('PUT with valid book object', (done) => {
+    const updateTest = (result) => {
+      expect(result.status).toEqual(200);
+      expect(result.body.title).toEqual('A New Title');
+    }
+    Book.findByAuthor('author 1')
+      .then((books) => {
+        cachedBooks = books.slice();
+        const book = books[0];
+        book.title = 'A New Title';
+        superagent.put(`${apiUrl}`)
+          .send(JSON.stringify(book))
+          .then((result) => {
+            updateTest(result);
+            done();
+          })
+          .catch((err) => {
+            throw err;
+          })
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+
+  test('PUT with invalid _id on book', (done) => {
+    const badBook = cachedBooks[1];
+    badBook._id = 'nonexistent id';
+    superagent(`${apiUrl}/update`)
+      .send(JSON.stringify(badBook))
+      .then ((err) => {
+        throw err;
+      })
+      .catch((result) => {
+        expect(result.status).toEqual(404);
+        done();
+      })
+  });
+});
