@@ -1,6 +1,6 @@
 'use strict';
 
-const storage = require('../lib/storage');
+const storage = require('../lib/storage/memory');
 
 describe('Storage module tests', () => {
   test('#storage.save', () => {

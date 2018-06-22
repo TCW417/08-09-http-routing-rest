@@ -1,7 +1,8 @@
 'use strict';
 
 const uuid = require('uuid/v4');
-const storage = require('../lib/storage');
+const storage = process.env.STORAGE === 'filesystem' 
+  ? require('../lib/storage/file-system') : require('../lib/storage/memory');
 
 module.exports = class Book {
   // Book constructor takes an object of the form 

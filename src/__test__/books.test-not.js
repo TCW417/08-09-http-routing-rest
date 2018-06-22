@@ -1,7 +1,9 @@
 'use strict';
 
 const Book = require('../model/books');
-const storage = require('../lib/storage');
+
+const storage = process.env.STORAGE === 'filesystem' 
+  ? require('../lib/storage/file-system') : require('../lib/storage/memory');
 
 describe('books module tests', () => {
   test('constructor no description', () => {
