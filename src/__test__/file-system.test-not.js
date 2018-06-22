@@ -9,19 +9,19 @@ const syncDataRead = (schema, item) => {
   return JSON.parse(fs.readFileSync(fd).toString());
 };
 
-afterAll(() => {
-  const files = fs.readdirSync(`${storage.dataFd}/test`);
+beforeAll(() => {
+  const files = fs.readdirSync(`${storage.dataFd}/fstest`);
   files.forEach(file => 
-    fs.unlinkSync(`${storage.dataFd}/test/${file}`));
-  fs.rmdirSync(`${storage.dataFd}/test/`);
+    fs.unlinkSync(`${storage.dataFd}/fstest/${file}`));
+  fs.rmdirSync(`${storage.dataFd}/fstest/`);
 });
 
 describe('File System storage module tests', () => {
   test('#storage.save', () => {
     expect.assertions(3);
-    return storage.save('test', { _id: 123, value: 'a string' })
+    return storage.save('fstest', { _id: 123, value: 'a string' })
       .then(() => {
-        const fd = storage.itemFd('test', { _id: 123 });
+        const fd = storage.itemFd('fstest', { _id: 123 });
         expect(fs.existsSync(fd)).toBeTruthy();
         const buf = JSON.parse(fs.readFileSync(fd));
         expect(buf._id).toEqual(123);
@@ -35,11 +35,11 @@ describe('File System storage module tests', () => {
 
   test('#storage.get good id', () => {
     expect.assertions(4);
-    return storage.get('test', 123)
+    return storage.get('fstest', 123)
       .then((result) => {
         expect(result._id).toEqual(123);
         expect(result.value).toEqual('a string');
-        const buf = syncDataRead('test', { _id: 123 });
+        const buf = syncDataRead('fstest', { _id: 123 });
         expect(buf._id).toEqual(123);
         expect(buf.value).toEqual('a string');
       })
@@ -50,7 +50,7 @@ describe('File System storage module tests', () => {
 
   test('#storage.get bad id', () => {
     expect.assertions(1);
-    return storage.get('test', 999)
+    return storage.get('fstest', 999)
       .then((err) => {
         throw err;
       })
@@ -60,10 +60,10 @@ describe('File System storage module tests', () => {
   });
 
   test('#storage.getAll good schema', () => {
-    return storage.save('test', { _id: 456, value: 'a string' })
+    return storage.save('fstest', { _id: 456, value: 'a string' })
       .then(() => {
         expect.assertions(5);
-        return storage.getAll('test')
+        return storage.getAll('fstest')
           .then((result2) => {
             expect(result2).toHaveLength(2);
             expect(result2[0].value).toEqual('a string');
@@ -93,7 +93,7 @@ describe('File System storage module tests', () => {
 
   test('#storage.getByKey success', () => {
     expect.assertions(2);
-    return storage.getByKey('test', { value: 'a string' })
+    return storage.getByKey('fstest', { value: 'a string' })
       .then((result) => {
         expect(result).toHaveLength(2);
         expect(result[0]._id).toEqual(123);
@@ -112,7 +112,7 @@ describe('File System storage module tests', () => {
 
   test('#storage.getByKey no match', () => {
     expect.assertions(1);
-    return storage.getByKey('test', { value: 999 })
+    return storage.getByKey('fstest', { value: 999 })
       .then((result) => {
         expect(result).toHaveLength(0);
       })
@@ -121,10 +121,10 @@ describe('File System storage module tests', () => {
 
   test('#storage.delete good request', () => {
     expect.assertions(2);
-    return storage.delete('test', 456)
+    return storage.delete('fstest', 456)
       .then((result) => {
         expect(result).toEqual('Success');
-        expect(fs.existsSync(storage.itemFd('test', { _id: 456 }))).toBeFalsy();
+        expect(fs.existsSync(storage.itemFd('fstest', { _id: 456 }))).toBeFalsy();
       })
       .catch((err) => {
         throw err;
@@ -144,21 +144,21 @@ describe('File System storage module tests', () => {
 
   test('#storage.delete bad request', () => {
     expect.assertions(1);
-    return storage.delete('test', 333)
+    return storage.delete('fstest', 333)
       .then((err) => {
         throw err;
       })
       .catch((result) => {
-        expect(result.message.includes('/test/333.json doesn\'t exist')).toBeTruthy();
+        expect(result.message.includes('/fstest/333.json doesn\'t exist')).toBeTruthy();
       });
   });
 
   test('#storage.upate good ID', () => {
     expect.assertions(2);
-    return storage.update('test', { _id: 123, value: 'a new string' })
+    return storage.update('fstest', { _id: 123, value: 'a new string' })
       .then((result) => {
         expect(result.value).toEqual('a new string');
-        const result2 = syncDataRead('test', { _id: 123 });
+        const result2 = syncDataRead('fstest', { _id: 123 });
         expect(result2.value).toEqual('a new string');
       })
       .catch((err) => {
@@ -168,7 +168,7 @@ describe('File System storage module tests', () => {
 
   test('#storage.update bad ID', () => {
     expect.assertions(1);
-    return storage.update('test', { _id: 5555 })
+    return storage.update('fstest', { _id: 5555 })
       .then((err) => {
         throw err;
       })

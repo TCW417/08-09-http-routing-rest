@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "eslint . && jest --coverage",
+    "test": "eslint . && jest --coverage --runInBand",
     "testWatch": "jest --coverage --watchAll",
-    "tests": "jest --coverage",
+    "tests": "jest --coverage --runInBand",
     "lint": "eslint .",
     "start": "node index.js",
     "debug": "node inspect index.js"
