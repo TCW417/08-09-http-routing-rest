@@ -1,11 +1,15 @@
 ![cf](https://i.imgur.com/7v5ASc8.png)    
-# Lab 08: Vanilla REST API w/ Routing and In Memory Persistence
+# Lab 08-09: Vanilla REST API w/ Routing and In Memory Persistence
 
 [![Build Status](https://travis-ci.org/TCW417/08-09-http-routing-rest.svg?branch=master)](https://travis-ci.org/TCW417/08-09-http-routing-rest)
 
 The BOOKS api provides an interface to a database of books. Think of it as your personal reading list.  Books have, at a minimum, title and author properties, with an optional description.
 
-Storage (in this version) is held in memory and is not persistent between server starts and stops.  The memory interface is object agnostic and can be used to perform CRUD operations on any object in any schema. In this case, the api uses schema named 'Books' and objects with title, author and description properties.  When added to the database, books are given additional properties of _id (a uuid string) and createdOn (an ISO formatted date).
+Storage can be configured as transient (RAM only) or persistent (using the server file system) based on the value of STORAGE in the .env file.  The file system storage interface automatically creates the required directories.
+
+The storage interface is object agnostic and can be used to perform CRUD operations on any object in any schema. In this case, the api uses schema named 'Books' and objects with title, author and description properties.  When added to the database, books are given additional properties of _id (a uuid string) and createdOn (an ISO formatted date).
+
+Files created in the test schema are automaticall deleted once tests have completed.
 
 ## The API
 ### GET api/v1/books{?id | title | author }

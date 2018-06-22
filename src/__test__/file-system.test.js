@@ -9,6 +9,12 @@ const syncDataRead = (schema, item) => {
   return JSON.parse(fs.readFileSync(fd).toString());
 };
 
+afterAll(() => {
+  const files = fs.readdirSync(`${storage.dataFd}/test`);
+  files.forEach(file => 
+    fs.unlinkSync(`${storage.dataFd}/test/${file}`));
+  fs.rmdirSync(`${storage.dataFd}/test/`);
+});
 
 describe('File System storage module tests', () => {
   test('#storage.save', () => {
