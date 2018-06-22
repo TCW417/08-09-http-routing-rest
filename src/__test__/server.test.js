@@ -4,8 +4,8 @@
 const superagent = require('superagent');
 const server = require('../lib/server');
 const Book = require('../model/books');
-const memory = require('../lib/storage')._mem;
-
+const memory = process.env.STORAGE === 'filesystem' 
+  ? require('../lib/storage/file-system') : require('../lib/storage/memory');
 const apiUrl = 'http://localhost:5000/api/v1/books';
 
 const mockResource = {
