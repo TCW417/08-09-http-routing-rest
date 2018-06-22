@@ -1,11 +1,13 @@
 'use strict';
 
-/* eslint-disable */
+
 const superagent = require('superagent');
+const fs = require('fs');
 const server = require('../lib/server');
 const Book = require('../model/books');
-const memory = process.env.STORAGE === 'filesystem' 
+const storage = process.env.STORAGE === 'filesystem' 
   ? require('../lib/storage/file-system') : require('../lib/storage/memory');
+
 const apiUrl = 'http://localhost:5000/api/v1/books';
 
 const mockResource = {
@@ -13,12 +15,24 @@ const mockResource = {
   author: 'test author',
   description: 'the description',
 };
+beforeAll(() => {
+  server.start(5000);
+  if (process.env.STORAGE === 'filesystem') {
+    const files = fs.readdirSync(`${storage.dataFd}/Books`);
+    files.forEach(file => 
+      fs.unlinkSync(`${storage.dataFd}/Books/${file}`));
+    fs.rmdirSync(`${storage.dataFd}/Books/`);
+  }
+  storage._mem = {}; // just in case
+});
 
-beforeAll(() => server.start(5000));
-afterAll(() => server.stop());
+afterAll(() => {
+  server.stop();
+});
 
 describe('POST to /api/v1/books', () => {
   test('200 for successful saving of a new book', () => {
+    expect.assertions(5);
     return superagent.post(apiUrl)
       .send(mockResource)
       .then((response) => {
@@ -35,6 +49,7 @@ describe('POST to /api/v1/books', () => {
   });
 
   test('400 for a bad request', () => {
+    expect.assertions(2);
     return superagent.post(apiUrl)
       .send({})
       .then((response) => {
@@ -51,7 +66,7 @@ describe('GET /api/v1/books', () => {
   let mockResourceForGet;
   beforeEach(() => {
     const newBook = new Book(mockResource);
-    newBook.save()
+    return newBook.save()
       .then((book) => {
         mockResourceForGet = book;
       })
@@ -61,6 +76,7 @@ describe('GET /api/v1/books', () => {
   });
 
   test('200 successful GET request', () => {
+    expect.assertions(4);
     return superagent.get(`${apiUrl}?id=${mockResourceForGet._id}`)
       .then((response) => {
         expect(response.status).toEqual(200);
@@ -78,7 +94,7 @@ describe('DELETE /api/v1/books', () => {
   let mockResourceForGet;
   beforeAll(() => {
     const newBook = new Book(mockResource);
-    newBook.save()
+    return newBook.save()
       .then((book) => {
         mockResourceForGet = book;
       })
@@ -88,6 +104,7 @@ describe('DELETE /api/v1/books', () => {
   });
 
   test('200 successful DELETE request', () => {
+    expect.assertions(1);
     return superagent.delete(`${apiUrl}?id=${mockResourceForGet._id}`)
       .then((response) => {
         expect(response.status).toEqual(200);
@@ -97,40 +114,51 @@ describe('DELETE /api/v1/books', () => {
       });
   });
 
-    test('404 Failed DELETE request', () => {
-      return superagent.delete(`${apiUrl}?id=${mockResourceForGet._id}`)
-        .then((err) => {
-          throw err;
-        })
-        .catch((response) => {
-          expect(response.status).toEqual(404);
-          expect(response.body).toBeUndefined();
-        })
-        .catch((err) => {
-          throw err;
-        });
-    });
-});
+  test('404 Failed DELETE request', () => {
+    expect.assertions(2);
+    return superagent.delete(`${apiUrl}?id=${mockResourceForGet._id}`)
+      .then((err) => {
+        throw err;
+      })
+      .catch((response) => {
+        expect(response.status).toEqual(404);
+        expect(response.body).toBeUndefined();
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+});  
 
 describe('GET /api/v1/books with no query string', () => {
   beforeAll(() => {
-    new Book({
-      author: 'author 1',
-      title: 'title 1',
-      description: 'a description,'
-    }).save();
-    new Book({
-      author: 'author 1',
-      title: 'title 2',
-    }).save();
-    new Book({
-      author: 'author 1',
-      title: 'title 3',
-      description: 'a description,'
-    }).save();
+    const p1 = new Promise(() => {
+      new Book({
+        author: 'author 1',
+        title: 'title 1',
+        description: 'a description',
+      }).save();
+    });
+    const p2 = new Promise(() => {
+      new Book({
+        author: 'author 1',
+        title: 'title 2',
+      }).save();
+    });
+    const p3 = new Promise(() => {
+      new Book({
+        author: 'author 1',
+        title: 'title 3',
+        description: 'a description',
+      }).save();
+    });
+    Promise.all([p1, p2, p3])
+      .then()
+      .catch(); 
   });
 
   test('200 successful GET request with no query string', () => {
+    expect.assertions(2);
     return superagent.get(`${apiUrl}`)
       .then((response) => {
         expect(response.status).toEqual(200);
@@ -144,23 +172,32 @@ describe('GET /api/v1/books with no query string', () => {
 
 describe('GET requests quering author and title', () => {
   beforeAll(() => {
-    new Book({
-      author: 'author 1',
-      title: 'title 1',
-      description: 'a description,'
-    }).save();
-    new Book({
-      author: 'author 2',
-      title: 'title 2',
-    }).save();
-    new Book({
-      author: 'author 1',
-      title: 'title 3',
-      description: 'a description,'
-    }).save();
+    const p1 = new Promise(() => {
+      new Book({
+        author: 'author 1',
+        title: 'title 1',
+        description: 'a description',
+      }).save();
+    });
+    const p2 = new Promise(() => {
+      new Book({
+        author: 'author 2',
+        title: 'title 2',
+      }).save();
+    });
+    const p3 = new Promise(() => {
+      new Book({
+        author: 'author 1',
+        title: 'title 3',
+        description: 'a description',
+      }).save();
+    });
+    Promise.all([p1, p2, p3])
+      .then()
+      .catch(); 
   });
-
   test('GET all author 1 books', () => {
+    expect.assertions(2);
     return superagent.get(`${apiUrl}`)
       .query({
         author: 'author 1',
@@ -172,17 +209,18 @@ describe('GET requests quering author and title', () => {
       .catch((err) => {
         throw err;
       });
-    });
+  });
 
-    test('GET all author X (unfound)', () => {
-      return superagent.get(`${apiUrl}`)
-        .query({
-          author: 'not found',
-        })
-        .then((result) => {
-          expect(result.body).toHaveLength(0);
-        });
-    });
+  test('GET all author X (unfound)', () => {
+    expect.assertions(1);
+    return superagent.get(`${apiUrl}`)
+      .query({
+        author: 'not found',
+      })
+      .then((result) => {
+        expect(result.body).toHaveLength(0);
+      });
+  });
 });
 
 describe('PUT (update) tests', () => {
@@ -191,8 +229,10 @@ describe('PUT (update) tests', () => {
     const updateTest = (result) => {
       expect(result.status).toEqual(200);
       expect(result.body.title).toEqual('A New Title');
-    }
-    Book.findByAuthor('author 1')
+    };
+
+    expect.assertions(2);
+    return Book.findByAuthor('author 1')
       .then((books) => {
         cachedBooks = books.slice();
         const book = books[0];
@@ -205,7 +245,7 @@ describe('PUT (update) tests', () => {
           })
           .catch((err) => {
             throw err;
-          })
+          });
       })
       .catch((err) => {
         throw err;
@@ -215,14 +255,15 @@ describe('PUT (update) tests', () => {
   test('PUT with invalid _id on book', (done) => {
     const badBook = cachedBooks[1];
     badBook._id = 'nonexistent id';
-    superagent(`${apiUrl}/update`)
+    expect.assertions(1);
+    return superagent(`${apiUrl}/update`)
       .send(JSON.stringify(badBook))
-      .then ((err) => {
+      .then((err) => {
         throw err;
       })
       .catch((result) => {
         expect(result.status).toEqual(404);
         done();
-      })
+      });
   });
 });

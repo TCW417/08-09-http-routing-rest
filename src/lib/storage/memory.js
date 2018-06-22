@@ -95,11 +95,8 @@ storage.getByKey = (schema, searchFor) => {
 
 storage.delete = (schema, _id) => {
   if (memory[schema][_id]) {
-    const temp = memory[schema][_id];
-
     delete memory[schema][_id];
-    
-    return Promise.resolve(temp);
+    return Promise.resolve('Success');
   }
   return Promise.reject(new Error(`Schema ${schema} and/or ID ${_id} not found`));
 };

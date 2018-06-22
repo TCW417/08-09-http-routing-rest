@@ -5,8 +5,6 @@ const fs = require('fs');
 
 const storage = module.exports = {};
 
-// const memory = storage._mem = {};
-
 // NOTE: I'm putting my data/ in the project root folder
 storage.dataFd = `${__dirname}/../../../data`; 
 storage.itemFd = (schema, item) => `${storage.dataFd}/${schema}/${item._id}.json`;
@@ -45,6 +43,7 @@ storage.itemFd = (schema, item) => `${storage.dataFd}/${schema}/${item._id}.json
 // All functions return promises for resolution and rejection.
 
 storage.save = (schema, item) => {
+  // console.log('......storage.save', schema, item);
   return new Promise((resolve, reject) => {
     if (!schema) return reject(new Error('Cannot create a new item: schema name required.'));
 
@@ -158,6 +157,8 @@ storage.delete = (schema, _id) => {
       if (err) return reject(err);
       return resolve('Success');
     });
+    // fs.unlinkSync(delFd);
+    // return resolve('Success');
     return undefined;
   });
 };
