@@ -163,19 +163,11 @@ storage.delete = (schema, _id) => {
 };
 
 storage.update = (schema, item) => {
-  // return new Promise((resolve, reject) => {
   const schemaDir = `${storage.dataFd}/${schema}/`;
   if (!fs.existsSync(schemaDir)) return Promise.reject(new Error(`${schemaDir} doesn't exist`));
 
   const updateFd = storage.itemFd(schema, { _id: item._id });
   if (!fs.existsSync(updateFd)) return Promise.reject(new Error(`Unable to update ${updateFd}. File doesn't exist`));
 
-  // console.log('upate: item', item);
-  // console.log('update stringified', JSON.stringify(item));
-  // fs.writeFile(updateFd, JSON.stringify(item), (err) => {
-  //   if (err) return reject(err);
-  //   return resolve(item);
-  // });
   return storage.save(schema, item);
-  // });
 };
