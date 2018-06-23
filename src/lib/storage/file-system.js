@@ -43,7 +43,7 @@ storage.itemFd = (schema, item) => `${storage.dataFd}/${schema}/${item._id}.json
 // All functions return promises for resolution and rejection.
 
 storage.save = (schema, item) => {
-  // console.log('......storage.save', schema, item);
+  console.log('......storage.save', schema, item);
   return new Promise((resolve, reject) => {
     if (!schema) return reject(new Error('Cannot create a new item: schema name required.'));
 
@@ -64,10 +64,12 @@ storage.save = (schema, item) => {
     } catch (err) {
       return reject(err);
     }
-
+    console.log('.........save fd', itemFile);
+    console.log('.........buf', buf);
     fs.writeFile(itemFile, buf, (err) => {
       if (err) return reject(err);
-      return resolve(JSON.parse(buf));
+      console.log('.........save callback no error');
+      return resolve(item);
     });
   
     return undefined;
@@ -84,7 +86,13 @@ storage.get = (schema, _id) => {
 
     fs.readFile(fd, (err, data) => {
       if (err) return reject(err);
-      return resolve(JSON.parse(data.toString()));
+      let buf = data.toString();
+      try {
+        buf = JSON.parse(buf);
+      } catch (err2) {
+        return reject(err2);
+      }
+      return resolve(buf);
     });
 
     return undefined;
@@ -107,7 +115,13 @@ storage.getAll = (schema) => {
           const fd = `${storage.dataFd}/${schema}/${dirs[d]}`;
           fs.readFile(fd, (errD, data) => {
             if (errD) return rejectD(errD);
-            resolveD(JSON.parse(data));
+            let parsedData;
+            try {
+              parsedData = JSON.parse(data);
+            } catch (err2) {
+              return reject(err2);
+            }
+            resolveD(parsedData);
             return undefined;
           });
         });

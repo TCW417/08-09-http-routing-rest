@@ -7,7 +7,8 @@ module.exports = (request) => {
     if (!request || !request.url) return reject(new Error('Invalid Request Object. Cannot parse.'));
 
     request.url = url.parse(request.url, true);
-
+    console.log('>>>>>>>>BP request.url', request.url);
+    console.log('>>>>>>>>BP request.method', request.method);
     if (!request.method.match(/POST|PUT|PATCH/)) {
       return resolve(request);
     }
@@ -24,6 +25,8 @@ module.exports = (request) => {
       // possible errors: passing in ' ', usually results in a SyntaxError
       try {
         request.body = JSON.parse(message);
+        console.log('>>>>>>>>>>BP message', message);
+        console.log('>>>>>>>>>>BP request.body', request.body);
         return resolve(request);
       } catch (err) {
         return reject(err);

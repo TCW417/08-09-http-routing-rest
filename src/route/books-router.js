@@ -126,9 +126,9 @@ module.exports = (router) => {
       return undefined;
     }
     Book.delete(request.url.query.id)
-      .then((book) => {
+      .then(() => {
         customResponse.sendJSON(response, 200, {
-          Result: `${book.title} has been deleted`,
+          Result: 'The book has been deleted',
         });
       })
       .catch((err) => {
