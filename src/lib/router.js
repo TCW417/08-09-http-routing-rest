@@ -72,6 +72,7 @@ module.exports = class Router {
           return undefined;
         })
         .catch((err) => {
+          console.log('!!!!!!!!!! router error catch entered');
           logger.log(logger.INFO, JSON.stringify(err));
           customResponse.sendError(response, 400, 'Bad request received.');
           return undefined;
