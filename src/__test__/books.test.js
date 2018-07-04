@@ -8,9 +8,6 @@ const Book = require('../model/books');
 const storage = process.env.STORAGE === 'filesystem' 
   ? require('../lib/storage/file-system') : require('../lib/storage/memory');
 
-console.log('>>>>>>> books.test..js STORAGE:', process.env.STORAGE);
-console.log('>>>>>>> books.test.js _mem visible?', !!storage._mem);
-
 beforeAll(() => {
   if (process.env.STORAGE === 'filesystem') {
     const files = fs.readdirSync(`${storage.dataFd}/Books`);
@@ -106,12 +103,9 @@ describe('books module tests', () => {
       const p1 = new Promise(() => { b.save(); });
       Promise.all([p1])
         .then((book) => {
-          console.log('promise resolved', book);
           expect.assertions(2);
-          console.log('calling findById with', book._id);
           return Book.findById(book._id)
             .then((book2) => {
-              console.log('back from fetchbyId', book);
               expect(book2.title).toEqual(book.title);
               expect(book2.author).toEqual(book.author);
             })
