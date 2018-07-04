@@ -6,9 +6,6 @@ if (!process.env.STORAGE) require('dotenv').config();
 const storage = process.env.STORAGE === 'filesystem' 
   ? require('../lib/storage/file-system') : require('../lib/storage/memory');
 
-console.log('++++++ books.js STORAGE:', process.env.STORAGE);
-console.log('++++++ books.js _mem visible?', !!storage._mem);
-
 // const storage = require('../lib/storage/memory');
 
 module.exports = class Book {

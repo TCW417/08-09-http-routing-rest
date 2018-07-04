@@ -43,7 +43,6 @@ storage.itemFd = (schema, item) => `${storage.dataFd}/${schema}/${item._id}.json
 // All functions return promises for resolution and rejection.
 
 storage.save = (schema, item) => {
-  console.log('......storage.save', schema, item);
   return new Promise((resolve, reject) => {
     if (!schema) return reject(new Error('Cannot create a new item: schema name required.'));
 
@@ -64,11 +63,8 @@ storage.save = (schema, item) => {
     } catch (err) {
       return reject(err);
     }
-    console.log('.........save fd', itemFile);
-    console.log('.........buf', buf);
     fs.writeFile(itemFile, buf, (err) => {
       if (err) return reject(err);
-      console.log('.........save callback no error');
       return resolve(item);
     });
   
